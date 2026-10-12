@@ -119,8 +119,8 @@ function listFolder(folderId) {
       isVideo: isVideo,
       size: file.getSize(),
       webViewLink: file.getUrl(),
-      thumbnailUrl: hasPreview ? 'https://drive.google.com/thumbnail?id=' + id + '&sz=w500' : '',
-      previewUrl: hasPreview ? 'https://drive.google.com/thumbnail?id=' + id + '&sz=w1600' : ''
+      thumbnailUrl: hasPreview ? 'https://drive.google.com/thumbnail?id=' + id + '&sz=w800' : '',
+      previewUrl: hasPreview ? 'https://drive.google.com/thumbnail?id=' + id + '&sz=w2000' : ''
     });
   }
 

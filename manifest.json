@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAmaAUrHiWRE1XtbG99olI6UstV9G63lYTAdDZCdafPIU41ZNuSfY06RDZJrtHeaurnrtI+V0aPNBwuFa9vJW7V0UXYs0x29hIJcAVcLgWEJstnCk16c4lwQ+UHBHkGA/9rUsj2okbscey24uC1600GtiZEMXym4L2YIqf0SOrEKDd1BlHtZWxzKDumhZCNxoJrBJBjqNspmJmoTGFwtyWQ4dD+c/GWHxSlHJnMMArIY7i11KOERM7Vy6BnNsKrFE7LIUccPxJXGLgYNjEEhMU6IKw3RFP2qbkRNOgSlog0SSQf6vI71veodfhYv8ANzQ/dExeFECxeOSczEAZqaJoaQIDAQAB",
   "name": "谷歌云端硬盘管理",
-  "version": "2.5.0",
+  "version": "2.5.1",
   "description": "预览云端硬盘图片与视频，支持移动、下载、复制链接、移入回收站、创建文件夹和按文件名自动分类。可用 Apps Script 或服务账号，并检查官方更新。",
   "permissions": ["storage", "downloads", "activeTab", "alarms", "identity"],
   "host_permissions": [

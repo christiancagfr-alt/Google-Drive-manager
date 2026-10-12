@@ -99,20 +99,20 @@
 
   function resolveHighResUrl(sourceUrl, fileId) {
     if (fileId) {
-      return `https://drive.google.com/thumbnail?id=${encodeURIComponent(fileId)}&sz=w1600`;
+      return `https://drive.google.com/thumbnail?id=${encodeURIComponent(fileId)}&sz=w2000`;
     }
     if (!sourceUrl) return '';
     try {
       const u = new URL(sourceUrl, location.href);
       if (u.searchParams.has('sz')) {
-        u.searchParams.set('sz', 'w1600');
+        u.searchParams.set('sz', 'w2000');
         return u.toString();
       }
       if (/googleusercontent\.com/i.test(u.hostname)) {
         return u.href
-          .replace(/=s\d+(-[a-z]+)?$/i, '=s1600')
-          .replace(/=w\d+-h\d+[^?#]*/i, '=w1600')
-          .replace(/\/s\d+\//i, '/s1600/');
+          .replace(/=s\d+(-[a-z]+)?$/i, '=s2000')
+          .replace(/=w\d+-h\d+[^?#]*/i, '=w2000')
+          .replace(/\/s\d+\//i, '/s2000/');
       }
       return u.toString();
     } catch (error) {

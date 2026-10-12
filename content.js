@@ -498,6 +498,9 @@
     }
 
     grid.innerHTML = state.files.map(renderFileCard).join('');
+    grid.querySelectorAll('.dim-thumb img').forEach((img) => {
+      img.addEventListener('error', () => useFallbackSrc(img));
+    });
     grid.querySelectorAll('.dim-card').forEach((card) => {
       const id = card.dataset.id;
       card.addEventListener('click', (event) => {
@@ -532,9 +535,10 @@
     const isImage = item.isImage || (item.mimeType || '').startsWith(IMAGE_MIME_PREFIX);
     const isVideo = item.isVideo || isVideoItem(item);
     const rawThumb = item.thumbnailUrl || item.previewUrl || '';
-    const thumb = policy().isSafePreviewSrc(rawThumb) ? rawThumb : '';
+    const fallback = policy().isSafePreviewSrc(rawThumb) ? rawThumb : '';
+    const thumb = mediaThumb(item.id, 800) || fallback;
     const imageHtml = (isImage || isVideo) && thumb
-      ? `<img src="${escapeHtml(thumb)}" alt="${escapeHtml(item.name)}" loading="lazy">`
+      ? `<img src="${escapeHtml(thumb)}" alt="${escapeHtml(item.name)}" loading="lazy"${fallback && fallback !== thumb ? ` data-fallback="${escapeHtml(fallback)}"` : ''}>`
       : `<div class="dim-file-icon">${escapeHtml(fileLabel(item.mimeType))}</div>`;
     const badgeHtml = isVideo ? '<span class="dim-video-badge">视频</span>' : '';
 
@@ -561,6 +565,20 @@
 
   function isVideoItem(item) {
     return Boolean(item && (item.mimeType || '').startsWith(VIDEO_MIME_PREFIX));
+  }
+
+  function mediaThumb(fileId, width) {
+    if (!policy().isValidDriveId(fileId)) return '';
+    const size = width >= 1600 ? 2000 : 800;
+    return `https://drive.google.com/thumbnail?id=${encodeURIComponent(fileId)}&sz=w${size}`;
+  }
+
+  function useFallbackSrc(img) {
+    const fallback = img.dataset.fallback || '';
+    if (!fallback || img.src === fallback) return false;
+    img.dataset.fallback = '';
+    img.src = fallback;
+    return true;
   }
 
   function formatSize(size) {
@@ -878,13 +896,15 @@
     previewPinned = Boolean(options.pinned);
     const isVideo = item.isVideo || isVideoItem(item);
     if (isVideo && !policy().isValidDriveId(item.id)) return;
-    const previewSrc = policy().isSafePreviewSrc(item.previewUrl) ? item.previewUrl
-      : (policy().isSafePreviewSrc(item.thumbnailUrl) ? item.thumbnailUrl : '');
-    if (!isVideo && !previewSrc) return;
+    const rawPreview = item.previewUrl || item.thumbnailUrl || '';
+    const fallback = policy().isSafePreviewSrc(rawPreview) ? rawPreview : '';
+    const still = mediaThumb(item.id, 2000) || fallback;
+    const playVideo = isVideo && previewPinned;
+    if (!playVideo && !still) return;
     const preview = document.createElement('div');
     preview.id = 'drive-image-manager-preview';
     preview.dataset.pinned = previewPinned ? '1' : '0';
-    if (isVideo) {
+    if (playVideo) {
       preview.className = 'video-preview';
       const autoplay = options.autoplay ? '?autoplay=1' : '';
       preview.innerHTML = `
@@ -894,9 +914,10 @@
       `;
     } else {
       preview.innerHTML = `
-        <img src="${escapeHtml(previewSrc)}" alt="${escapeHtml(item.name)}">
+        <img src="${escapeHtml(still)}" alt="${escapeHtml(item.name)}"${fallback && fallback !== still ? ` data-fallback="${escapeHtml(fallback)}"` : ''}>
         <div>${escapeHtml(item.name)}</div>
       `;
+      preview.querySelector('img')?.addEventListener('error', (event) => useFallbackSrc(event.currentTarget));
     }
     document.body.appendChild(preview);
     preview.querySelector('.dim-preview-close')?.addEventListener('click', () => {

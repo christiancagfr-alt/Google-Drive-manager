@@ -472,8 +472,9 @@
     if (mimeType === FOLDER_MIME) return { kind: 'folder', id, name };
     const isImage = mimeType.startsWith('image/');
     const isVideo = mimeType.startsWith('video/');
-    const thumb = (isImage || isVideo) ? safeHttps(file.thumbnailLink) : '';
     const link = safeHttps(file.webViewLink) || `https://drive.google.com/file/d/${id}/view`;
+    const cardThumb = (isImage || isVideo) ? `https://drive.google.com/thumbnail?id=${encodeURIComponent(id)}&sz=w800` : '';
+    const largeThumb = (isImage || isVideo) ? `https://drive.google.com/thumbnail?id=${encodeURIComponent(id)}&sz=w2000` : '';
     return {
       kind: 'file',
       id,
@@ -483,8 +484,8 @@
       isVideo,
       size: Number(file.size || 0) || 0,
       webViewLink: link,
-      thumbnailUrl: thumb,
-      previewUrl: thumb
+      thumbnailUrl: cardThumb,
+      previewUrl: largeThumb
     };
   }
 

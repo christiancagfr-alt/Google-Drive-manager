@@ -239,7 +239,7 @@ Apps Script 后端支持：
 
 - 审核类型：`browser_extension`
 - 项目地址：`https://github.com/christiancagfr-alt/Google-Drive-manager`
-- 当前清单版本：`2.5.0`（已发布标签仍以 GitHub Release 为准，写这份说明时最新标签是 `v2.3.5`）
+- 当前清单版本：`2.5.1`
 - 发布资源：`google-drive-manager-v<版本>.zip` 与同名 `.sha256`
 
 发布前请确认：
