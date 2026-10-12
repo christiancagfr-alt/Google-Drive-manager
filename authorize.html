@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <title>授权云端硬盘</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 22px;
+        color: #172033;
+        background: #f7f9fc;
+        font-family: Arial, "Microsoft YaHei", sans-serif;
+      }
+      h1 { margin: 0 0 8px; font-size: 18px; }
+      p { color: #526078; font-size: 13px; line-height: 1.5; }
+      label { display: block; margin: 14px 0 6px; font-size: 12px; color: #526078; }
+      input {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 9px 10px;
+        border: 1px solid #c7d1df;
+        border-radius: 6px;
+      }
+      button {
+        width: 100%;
+        margin-top: 14px;
+        padding: 10px;
+        border: 0;
+        border-radius: 6px;
+        color: #fff;
+        background: #0f8a5f;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      button.secondary { background: #65758b; }
+      .status { min-height: 20px; margin-top: 12px; color: #1f6feb; font-size: 13px; white-space: pre-wrap; word-break: break-word; }
+      code { font-size: 12px; }
+    </style>
+  </head>
+  <body>
+    <h1>用我的 Google 账号授权</h1>
+    <p id="intro">插件 ID 已固定，和文件夹位置无关。点授权时会自动核对回调地址。普通用户不用改这一页。</p>
+    <div id="setup">
+      <label>回调地址（原样粘贴到 Google Cloud）</label>
+      <input id="redirectUri" readonly>
+      <button id="copyRedirectBtn" class="secondary" type="button">复制回调地址</button>
+      <label for="clientId">OAuth 客户端 ID（只需填一次）</label>
+      <input id="clientId" autocomplete="off" placeholder="数字-随机串.apps.googleusercontent.com" spellcheck="false">
+    </div>
+    <button id="goBtn" type="button">弹出 Google 登录</button>
+    <div id="status" class="status">准备授权</div>
+    <script src="policy.js"></script>
+    <script src="drive-client.js"></script>
+    <script src="oauth-config.js"></script>
+    <script src="authorize.js"></script>
+  </body>
+</html>

@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>谷歌云端硬盘管理</title>
+    <style>
+      body {
+        width: 380px;
+        margin: 0;
+        padding: 14px;
+        box-sizing: border-box;
+        color: #172033;
+        background: #f7f9fc;
+        font-family: Arial, "Microsoft YaHei", sans-serif;
+      }
+      h1 {
+        margin: 0 0 10px;
+        font-size: 16px;
+        font-weight: 700;
+      }
+      label {
+        display: block;
+        margin: 10px 0 6px;
+        font-size: 12px;
+        color: #526078;
+      }
+      input,
+      select,
+      textarea {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 9px 10px;
+        border: 1px solid #c7d1df;
+        border-radius: 6px;
+        color: #172033;
+        background: #fff;
+        outline: none;
+        font: inherit;
+      }
+      textarea {
+        min-height: 72px;
+        resize: vertical;
+        font-family: Consolas, "Microsoft YaHei", monospace;
+        font-size: 11px;
+      }
+      .mode-fields[hidden],
+      #setup[hidden] {
+        display: none;
+      }
+      details.more {
+        margin-top: 12px;
+      }
+      details.more summary {
+        cursor: pointer;
+        color: #526078;
+        font-size: 12px;
+      }
+      button {
+        width: 100%;
+        margin-top: 10px;
+        padding: 9px 10px;
+        border: 0;
+        border-radius: 6px;
+        color: #fff;
+        background: #1f6feb;
+        cursor: pointer;
+        font-weight: 700;
+      }
+      button.secondary {
+        background: #65758b;
+      }
+      button.success {
+        background: #0f8a5f;
+      }
+      button.warning {
+        background: #b45309;
+      }
+      .hint,
+      .status {
+        margin-top: 10px;
+        color: #65758b;
+        font-size: 12px;
+        line-height: 1.45;
+      }
+      .status {
+        min-height: 18px;
+        color: #1f6feb;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+      .tips {
+        margin-top: 10px;
+        padding: 8px 10px;
+        border-radius: 6px;
+        background: #eef4ff;
+        color: #34435a;
+        font-size: 11px;
+        line-height: 1.5;
+      }
+    </style>
+  </head>
+  <body>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+      <img src="icons/icon48.png" alt="谷歌云端硬盘管理" width="40" height="40" style="border-radius:8px;flex-shrink:0;">
+      <h1 style="margin:0;">谷歌云端硬盘管理</h1>
+    </div>
+    <div id="modeHint" class="hint"></div>
+    <label for="authMode">授权方式</label>
+    <select id="authMode">
+      <option value="appsScript">Apps Script（沿用网页应用）</option>
+      <option value="serviceAccount">服务账号（无需部署脚本）</option>
+    </select>
+    <div id="appsScriptFields" class="mode-fields">
+      <label for="appUrl">Apps Script 网页应用地址</label>
+      <input id="appUrl" placeholder="https://script.google.com/macros/s/xxx/exec" autocomplete="off">
+      <label for="accessToken">访问口令（可选）</label>
+      <input id="accessToken" type="password" autocomplete="off" placeholder="与脚本属性 DRIVE_MANAGER_TOKEN 相同">
+    </div>
+    <div id="serviceAccountFields" class="mode-fields" hidden>
+      <label for="saFile">授权文件</label>
+      <input id="saFile" type="file" accept="application/json,.json">
+      <div id="saEmail" class="hint">尚未授权。</div>
+    </div>
+    <button id="authBtn" class="success" type="button">授权云端硬盘</button>
+    <div id="status" class="status">等待配置</div>
+    <details class="more">
+      <summary>更多（更新、口令、说明）</summary>
+      <label for="saJson">或粘贴 JSON（保存后立即清空）</label>
+      <textarea id="saJson" autocomplete="off" spellcheck="false" placeholder="服务账号或 OAuth 客户端 JSON"></textarea>
+      <button id="copyEmailBtn" class="secondary" type="button">复制服务账号邮箱</button>
+      <button id="clearSaBtn" class="secondary" type="button">清除服务账号密钥</button>
+      <button id="clearUserBtn" class="secondary" type="button">退出 Google 授权</button>
+      <label for="githubToken">GitHub 只读令牌（可选）</label>
+      <input id="githubToken" type="password" autocomplete="off" placeholder="私有仓库检查更新时使用，只保存在本机">
+      <button id="saveBtn" type="button">保存配置</button>
+      <button id="clearSecretsBtn" class="secondary" type="button">清除本机口令</button>
+      <button id="testBtn" class="warning" type="button">测试连接</button>
+      <button id="refreshBtn" class="secondary" type="button">刷新当前云端硬盘页面</button>
+      <button id="checkUpdateBtn" class="secondary" type="button">检查更新</button>
+      <button id="downloadUpdateBtn" class="secondary" type="button" disabled>下载更新包</button>
+      <div class="tips">
+      <strong>弹窗授权：</strong>插件 ID 已固定。点「授权」会按 oauth-config.js 自动核对回调地址，再用自己的 Google 账号同意。客户端 ID 写在该文件里，用户不用各自填写。<br>
+      <strong>服务账号：</strong>也可以只导入服务账号 JSON。这样要把文件夹共享给该邮箱。密钥只留在本机。不支持域范围委派。<br>
+      <strong>404 排查：</strong>仅 Apps Script 模式。script.google.com → 打开项目 → 部署 → 管理部署 → 复制网页应用 URL → 粘贴到上方保存 → 测试连接 → 授权。<br>
+      <strong>批量删除：</strong>在云端硬盘面板勾选文件后点「删除所选（移入回收站）」，可在回收站恢复。<br>
+      <strong>访问口令：</strong>Apps Script → 项目设置 → 脚本属性，添加 <code>DRIVE_MANAGER_TOKEN</code>。不填则与未设置口令的后端兼容。<br>
+      <strong>自动更新：</strong>只检查 <code>christiancagfr-alt/Google-Drive-manager</code> 的正式发布。扩展不会自动覆盖安装。私有仓库需本机只读令牌。<br>
+      <strong>图片/视频放大：</strong>仅在<strong>谷歌表格、谷歌文档</strong>中生效（云端文件夹页面不启用，避免挡操作）。悬停 Drive 链接/缩略图可放大；视频可预览，Alt+点击固定后可播放，Esc 关闭。
+      </div>
+    </details>
+    <script src="policy.js"></script>
+    <script src="shared-url.js"></script>
+    <script src="popup.js"></script>
+  </body>
+</html>

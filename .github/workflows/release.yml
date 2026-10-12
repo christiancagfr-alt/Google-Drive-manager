@@ -1,0 +1,98 @@
+name: Release Browser Extension
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '20'
+
+      - name: Validate JavaScript
+        run: |
+          node --check background.js
+          node --check content.js
+          node --check popup.js
+          node --check shared-url.js
+          node --check image-hover.js
+          node --check policy.js
+          node --check drive-client.js
+          node --check authorize.js
+          node --check oauth-config.js
+
+      - name: Build extension directory
+        run: |
+          rm -rf dist
+          mkdir -p dist/icons
+          cp manifest.json dist/
+          cp background.js dist/
+          cp content.js dist/
+          cp popup.html dist/
+          cp popup.js dist/
+          cp styles.css dist/
+          cp auto-classify-styles.css dist/
+          cp shared-url.js dist/
+          cp policy.js dist/
+          cp drive-client.js dist/
+          cp authorize.html dist/
+          cp authorize.js dist/
+          cp oauth-config.js dist/
+          cp image-hover.js dist/
+          cp image-hover.css dist/
+          cp apps-script-backend.gs dist/
+          cp appsscript.json dist/
+          cp README.md dist/
+          cp -r icons/* dist/icons/
+          if [ -f icon.png ]; then cp icon.png dist/; fi
+
+      - name: Package Extension
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import os, re, sys
+          tag = os.environ.get("RELEASE_TAG", "")
+          if not re.fullmatch(r"v[0-9]+\.[0-9]+\.[0-9]+", tag):
+              sys.exit("refusing unexpected tag")
+          PY
+          fname="google-drive-manager-${RELEASE_TAG}.zip"
+          (
+            cd dist
+            zip -r "../${fname}" .
+          )
+          sha256sum "${fname}" | awk '{print $1}' > "${fname}.sha256"
+
+      - name: Attest Build Provenance
+        uses: actions/attest-build-provenance@e8998f949152b193b063cb0ec769d69d929409be # v2
+        with:
+          subject-path: |
+            google-drive-manager-*.zip
+            google-drive-manager-*.zip.sha256
+
+      - name: Create Release
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
+        with:
+          files: |
+            google-drive-manager-*.zip
+            google-drive-manager-*.zip.sha256
+          generate_release_notes: true

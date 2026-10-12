@@ -1,0 +1,16 @@
+dist/
+*.zip
+.DS_Store
+Thumbs.db
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials.json
+token.json
+*secret*.json
+*service-account*.json
+*service_account*.json
+client_secret*.json
+SECURITY_AUDIT.local.md
